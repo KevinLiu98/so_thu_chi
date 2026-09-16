@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản lý tài chính cá nhân</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.js"></script>
+<!-- Lucide Icons -->
+<script src="https://cdn.jsdelivr.net/npm/lucide@1/dist/umd/lucide.min.js"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #1e40af;
+    --accent-soft: rgba(30, 64, 175, 0.1);
+    --accent2: #0ea5e9;
+    --accent2-soft: rgba(14, 165, 233, 0.1);
+    --border: rgba(15, 23, 42, 0.08);
+    --success: #059669;
+    --danger: #dc2626;
+    --warning: #d97706;
+  }
+
+  .dark {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-soft: rgba(59, 130, 246, 0.15);
+    --accent2: #38bdf8;
+    --accent2-soft: rgba(56, 189, 248, 0.15);
+    --border: rgba(148, 163, 184, 0.15);
+  }
+
+  * {
+    font-family: 'Public Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Newsreader', serif;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .text-muted {
+    color: var(--muted);
+  }
+
+  .border-custom {
+    border-color: var(--border);
+  }
+
+  .bg-accent-soft {
+    background-color: var(--accent-soft);
+  }
+
+  .bg-accent2-soft {
+    background-color: var(--accent2-soft);
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover {
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .tab-btn.active {
+    background-color: var(--accent);
+    color: white;
+  }
+
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-primary {
+    background-color: var(--accent);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .btn-danger {
+    background-color: transparent;
+    color: var(--danger);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    cursor: pointer;
+  }
+
+  .btn-danger:hover {
+    background-color: rgba(220, 38, 38, 0.1);
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .input-field::placeholder {
+    color: var(--muted);
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-content {
+    background-color: var(--card);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toast {
+    padding: 14px 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+  }
+
+  .toast.success { background-color: var(--success); }
+  .toast.error { background-color: var(--danger); }
+  .toast.warning { background-color: var(--warning); }
+  .toast.info { background-color: var(--accent); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(100px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .transaction-item {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+  }
+
+  .transaction-item:hover {
+    background-color: var(--accent-soft);
+  }
+
+  .transaction-item.expense {
+    border-left-color: var(--danger);
+  }
+
+  .transaction-item.income {
+    border-left-color: var(--success);
+  }
+
+  .amount-expense {
+    color: var(--danger);
+    font-weight: 600;
+  }
+
+  .amount-income {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--muted);
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .chip.active {
+    background-color: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .onboarding-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+  }
+
+  .onboarding-card {
+    background-color: var(--card);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.4s ease;
+  }
+
+  .progress-bar {
+    height: 8px;
+    background-color: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .budget-warning {
+    background-color: rgba(217, 119, 6, 0.1);
+    border: 1px solid rgba(217, 119, 6, 0.3);
+    color: var(--warning);
+  }
+
+  .budget-exceeded {
+    background-color: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: var(--danger);
+  }
+
+  select.input-field option {
+    background-color: var(--card);
+    color: var(--text);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 3px;
+  }
+
+  .month-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .month-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .month-nav-btn:hover {
+    background-color: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .comparison-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comparison-row:last-child {
+    border-bottom: none;
+  }
+
+  .trend-up {
+    color: var(--danger);
+  }
+
+  .trend-down {
+    color: var(--success);
+  }
+
+  .insight-card {
+    background: linear-gradient(135deg, var(--accent-soft), var(--accent2-soft));
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Onboarding Overlay -->
+<div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
+  <div class="onboarding-card card">
+    <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-accent-soft flex items-center justify-center">
+      <i data-lucide="wallet" style="width:40px;height:40px;color:var(--accent)"></i>
+    </div>
+    <h2 class="text-2xl font-bold mb-3" style="color:var(--text)">Chào mừng đến với Quản lý tài chính!</h2>
+    <p class="text-muted mb-6">Ứng dụng giúp bạn theo dõi chi tiêu, thu nhập và đưa ra quyết định tài chính thông minh hơn. Dữ liệu của bạn được lưu trữ an toàn trên trình duyệt.</p>
+    <div class="text-left space-y-3 mb-6" style="color:var(--muted)">
+      <div class="flex items-start gap-3">
+        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
+        <span class="text-sm">Ghi lại mọi khoản thu chi một cách nhanh chóng</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
+        <span class="text-sm">Xem biểu đồ phân tích và báo cáo chi tiết</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
+        <span class="text-sm">So sánh tài chính giữa các tháng</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
+        <span class="text-sm">Đặt ngân sách và nhận cảnh báo khi vượt hạn mức</span>
+      </div>
+    </div>
+    <button class="btn-primary w-full text-base py-3" onclick="closeOnboarding()">Bắt đầu sử dụng</button>
+  </div>
+</div>
+
+<!-- Main Container -->
+<div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8">
+
+  <!-- Header -->
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),var(--accent2))">
+        <i data-lucide="wallet" style="width:24px;height:24px;color:white"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold" style="color:var(--text)">Quản lý tài chính</h1>
+        <p class="text-sm text-muted">Theo dõi chi tiêu thông minh mỗi ngày</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="btn-secondary flex items-center gap-2" onclick="toggleTheme()">
+        <i data-lucide="moon" id="themeIcon" style="width:18px;height:18px"></i>
+        <span class="hidden sm:inline">Chế độ tối</span>
+      </button>
+      <button class="btn-primary flex items-center gap-2" onclick="openAddModal()">
+        <i data-lucide="plus" style="width:18px;height:18px"></i>
+        <span>Thêm giao dịch</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-thin" style="border-bottom:1px solid var(--border)">
+    <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+      <i data-lucide="layout-dashboard" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+      Tổng quan
+    </button>
+    <button class="tab-btn" data-tab="transactions" onclick="switchTab('transactions')">
+      <i data-lucide="receipt" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+      Giao dịch
+    </button>
+    <button class="tab-btn" data-tab="analysis" onclick="switchTab('analysis')">
+      <i data-lucide="bar-chart-3" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+      Phân tích
+    </button>
+    <button class="tab-btn" data-tab="lastmonth" onclick="switchTab('lastmonth')">
+      <i data-lucide="calendar" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+      Tháng trước
+    </button>
+    <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+      <i data-lucide="settings" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+      Cài đặt
+    </button>
+  </nav>
+
+  <!-- ==================== DASHBOARD TAB ==================== -->
+  <div id="tab-dashboard" class="tab-content active">
+    
+    <!-- Month Selector -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div class="month-selector">
+        <button class="month-nav-btn" onclick="changeMonth(-1)">
+          <i data-lucide="chevron-left" style="width:20px;height:20px"></i>
+        </button>
+        <h2 class="text-xl font-semibold min-w-[180px] text-center" id="currentMonthLabel" style="color:var(--text)"></h2>
+        <button class="month-nav-btn" onclick="changeMonth(1)">
+          <i data-lucide="chevron-right" style="width:20px;height:20px"></i>
+        </button>
+      </div>
+      <button class="btn-secondary text-sm" onclick="goToCurrentMonth()">
+        <i data-lucide="target" style="width:16px;height:16px;display:inline;margin-right:4px;vertical-align:middle"></i>
+        Tháng hiện tại
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="card stat-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-muted">Tổng thu nhập</span>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color:rgba(5,150,105,0.1)">
+            <i data-lucide="trending-up" style="width:20px;height:20px;color:var(--success)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold amount-income" id="totalIncome">0 đ</p>
+        <p class="text-xs text-muted mt-2" id="incomeCompare">-- so với tháng trước</p>
+      </div>
+
+      <div class="card stat-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-muted">Tổng chi tiêu</span>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color:rgba(220,38,38,0.1)">
+            <i data-lucide="trending-down" style="width:20px;height:20px;color:var(--danger)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold amount-expense" id="totalExpense">0 đ</p>
+        <p class="text-xs text-muted mt-2" id="expenseCompare">-- so với tháng trước</p>
+      </div>
+
+      <div class="card stat-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-muted">Số dư còn lại</span>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-accent-soft">
+            <i data-lucide="piggy-bank" style="width:20px;height:20px;color:var(--accent)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold" id="balance" style="color:var(--text)">0 đ</p>
+        <p class="text-xs text-muted mt-2" id="balanceCompare">-- so với tháng trước</p>
+      </div>
+
+      <div class="card stat-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-muted">Tỷ lệ tiết kiệm</span>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-accent2-soft">
+            <i data-lucide="percent" style="width:20px;height:20px;color:var(--accent2)"></i>
+          </div>
+        </div>
+        <p class="text-2xl font-bold" id="savingsRate" style="color:var(--accent2)">0%</p>
+        <div class="progress-bar mt-3">
+          <div class="progress-fill" id="savingsProgress" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Warnings -->
+    <div id="budgetWarnings" class="mb-6"></div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Phân bổ chi tiêu theo danh mục</h3>
+        <div style="height:320px">
+          <canvas id="expensePieChart"></canvas>
+        </div>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Chi tiêu theo ngày trong tháng</h3>
+        <div style="height:320px">
+          <canvas id="dailyBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold" style="color:var(--text)">Giao dịch gần đây</h3>
+        <button class="text-sm font-medium" style="color:var(--accent)" onclick="switchTab('transactions')">Xem tất cả →</button>
+      </div>
+      <div id="recentTransactions" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- ==================== TRANSACTIONS TAB ==================== -->
+  <div id="tab-transactions" class="tab-content">
+    
+    <!-- Month Selector -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div class="month-selector">
+        <button class="month-nav-btn" onclick="changeMonth(-1)">
+          <i data-lucide="chevron-left" style="width:20px;height:20px"></i>
+        </button>
+        <h2 class="text-xl font-semibold min-w-[180px] text-center" id="transMonthLabel" style="color:var(--text)"></h2>
+        <button class="month-nav-btn" onclick="changeMonth(1)">
+          <i data-lucide="chevron-right" style="width:20px;height:20px"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card p-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="text-xs font-medium text-muted mb-1 block">Tìm kiếm</label>
+          <input type="text" class="input-field" placeholder="Tìm theo ghi chú..." id="searchInput" oninput="filterTransactions()">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-muted mb-1 block">Loại</label>
+          <select class="input-field" id="filterType" onchange="filterTransactions()">
+            <option value="all">Tất cả</option>
+            <option value="income">Thu nhập</option>
+            <option value="expense">Chi tiêu</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-muted mb-1 block">Danh mục</label>
+          <select class="input-field" id="filterCategory" onchange="filterTransactions()">
+            <option value="all">Tất cả danh mục</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-muted mb-1 block">Khoảng ngày</label>
+          <input type="date" class="input-field" id="filterDate" onchange="filterTransactions()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction List -->
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold" style="color:var(--text)">Danh sách giao dịch</h3>
+        <span class="text-sm text-muted" id="transactionCount">0 giao dịch</span>
+      </div>
+      <div id="transactionList" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- ==================== ANALYSIS TAB ==================== -->
+  <div id="tab-analysis" class="tab-content">
+    
+    <!-- Month Selector -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div class="month-selector">
+        <button class="month-nav-btn" onclick="changeMonth(-1)">
+          <i data-lucide="chevron-left" style="width:20px;height:20px"></i>
+        </button>
+        <h2 class="text-xl font-semibold min-w-[180px] text-center" id="analysisMonthLabel" style="color:var(--text)"></h2>
+        <button class="month-nav-btn" onclick="changeMonth(1)">
+          <i data-lucide="chevron-right" style="width:20px;height:20px"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Chi tiêu trung bình/ngày</span>
+        <p class="text-2xl font-bold mt-2" id="avgDailyExpense" style="color:var(--text)">0 đ</p>
+      </div>
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Ngày chi tiêu nhiều nhất</span>
+        <p class="text-2xl font-bold mt-2" id="maxSpendDay" style="color:var(--text)">--</p>
+        <p class="text-xs text-muted mt-1" id="maxSpendAmount">0 đ</p>
+      </div>
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Tổng số giao dịch</span>
+        <p class="text-2xl font-bold mt-2" id="totalTransactions" style="color:var(--accent)">0</p>
+      </div>
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Số danh mục đã chi</span>
+        <p class="text-2xl font-bold mt-2" id="categoriesUsed" style="color:var(--accent2)">0</p>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Phân bổ chi tiêu</h3>
+        <div style="height:320px">
+          <canvas id="analysisExpensePie"></canvas>
+        </div>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Phân bổ thu nhập</h3>
+        <div style="height:320px">
+          <canvas id="analysisIncomePie"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Top 5 danh mục chi tiêu nhiều nhất</h3>
+        <div id="topCategories" class="space-y-4"></div>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">So sánh 6 tháng gần đây</h3>
+        <div style="height:320px">
+          <canvas id="sixMonthChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LAST MONTH TAB ==================== -->
+  <div id="tab-lastmonth" class="tab-content">
+    
+    <h2 class="text-xl font-semibold mb-6" style="color:var(--text)">Tháng trước</h2>
+
+    <!-- Summary -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Tổng thu nhập tháng trước</span>
+        <p class="text-2xl font-bold amount-income mt-2" id="lastMonthIncome">0 đ</p>
+      </div>
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Tổng chi tiêu tháng trước</span>
+        <p class="text-2xl font-bold amount-expense mt-2" id="lastMonthExpense">0 đ</p>
+      </div>
+      <div class="card stat-card p-5">
+        <span class="text-sm text-muted">Số dư tháng trước</span>
+        <p class="text-2xl font-bold mt-2" id="lastMonthBalance" style="color:var(--text)">0 đ</p>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">So sánh chi tiêu theo danh mục</h3>
+        <div id="categoryComparison" class="space-y-1"></div>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Nhận xét tự động</h3>
+        <div id="autoInsights" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Largest Transactions -->
+    <div class="card p-5">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Các giao dịch lớn nhất tháng trước</h3>
+      <div id="largestTransactions" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- ==================== SETTINGS TAB ==================== -->
+  <div id="tab-settings" class="tab-content">
+    
+    <h2 class="text-xl font-semibold mb-6" style="color:var(--text)">Cài đặt</h2>
+
+    <!-- Budget Settings -->
+    <div class="card p-5 mb-6">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
+        <i data-lucide="target" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--accent)"></i>
+        Đặt ngân sách theo danh mục
+      </h3>
+      <p class="text-sm text-muted mb-4">Đặt hạn mức chi tiêu cho từng danh mục. Bạn sẽ nhận cảnh báo khi sắp vượt hoặc đã vượt ngân sách.</p>
+      <div id="budgetSettings" class="space-y-3"></div>
+    </div>
+
+    <!-- Data Management -->
+    <div class="card p-5 mb-6">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
+        <i data-lucide="database" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--accent)"></i>
+        Quản lý dữ liệu
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button class="btn-secondary flex flex-col items-center gap-2 py-6" onclick="exportCSV()">
+          <i data-lucide="file-text" style="width:24px;height:24px;color:var(--accent)"></i>
+          <span class="font-medium">Xuất CSV</span>
+          <span class="text-xs text-muted">Xuất báo cáo</span>
+        </button>
+        <button class="btn-secondary flex flex-col items-center gap-2 py-6" onclick="exportData()">
+          <i data-lucide="download" style="width:24px;height:24px;color:var(--accent)"></i>
+          <span class="font-medium">Sao lưu dữ liệu</span>
+          <span class="text-xs text-muted">Tải file JSON</span>
+        </button>
+        <label class="btn-secondary flex flex-col items-center gap-2 py-6 cursor-pointer">
+          <i data-lucide="upload" style="width:24px;height:24px;color:var(--accent)"></i>
+          <span class="font-medium">Khôi phục dữ liệu</span>
+          <span class="text-xs text-muted">Tải file JSON lên</span>
+          <input type="file" accept=".json" class="hidden" onchange="importData(event)">
+        </label>
+        <button class="btn-danger flex flex-col items-center gap-2 py-6" onclick="clearAllData()">
+          <i data-lucide="trash-2" style="width:24px;height:24px"></i>
+          <span class="font-medium">Xóa tất cả</span>
+          <span class="text-xs">Đặt lại dữ liệu</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Theme Settings -->
+    <div class="card p-5 mb-6">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
+        <i data-lucide="palette" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--accent)"></i>
+        Giao diện
+      </h3>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="font-medium" style="color:var(--text)">Chế độ tối</p>
+          <p class="text-sm text-muted">Bảo vệ mắt khi sử dụng vào ban đêm</p>
+        </div>
+        <button class="btn-secondary" onclick="toggleTheme()">
+          <i data-lucide="moon" id="themeIcon2" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+          <span id="themeLabel">Bật chế độ tối</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="card p-5">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
+        <i data-lucide="info" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--accent)"></i>
+        Thông tin
+      </h3>
+      <div class="space-y-2 text-sm" style="color:var(--muted)">
+        <p><strong style="color:var(--text)">Ứng dụng Quản lý tài chính cá nhân</strong></p>
+        <p>Phiên bản 1.0</p>
+        <p>Dữ liệu được lưu trữ cục bộ trên trình duyệt của bạn (localStorage). Không có dữ liệu nào được gửi lên máy chủ.</p>
+        <p>Định dạng tiền tệ: VNĐ (Việt Nam Đồng)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADD/EDIT TRANSACTION MODAL ==================== -->
+<div class="modal-overlay" id="transactionModal">
+  <div class="modal-content p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-xl font-bold" id="modalTitle" style="color:var(--text)">Thêm giao dịch mới</h3>
+      <button onclick="closeModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" style="color:var(--muted)">
+        <i data-lucide="x" style="width:20px;height:20px"></i>
+      </button>
+    </div>
+
+    <form id="transactionForm" onsubmit="saveTransaction(event)">
+      <input type="hidden" id="transactionId">
+      
+      <!-- Type Toggle -->
+      <div class="mb-5">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Loại giao dịch</label>
+        <div class="flex gap-2">
+          <button type="button" class="flex-1 py-3 px-4 rounded-lg font-medium transition-all type-btn active" data-type="expense" onclick="setType('expense')" style="background-color:rgba(220,38,38,0.1);color:var(--danger);border:2px solid var(--danger)">
+            <i data-lucide="minus-circle" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+            Chi tiêu
+          </button>
+          <button type="button" class="flex-1 py-3 px-4 rounded-lg font-medium transition-all type-btn" data-type="income" onclick="setType('income')" style="border:2px solid var(--border);color:var(--muted)">
+            <i data-lucide="plus-circle" style="width:18px;height:18px;display:inline;margin-right:6px;vertical-align:middle"></i>
+            Thu nhập
+          </button>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="mb-5">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Số tiền (VNĐ)</label>
+        <input type="text" id="amountInput" class="input-field text-lg font-semibold" placeholder="0" required oninput="formatAmountInput(this)">
+      </div>
+
+      <!-- Category -->
+      <div class="mb-5">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Danh mục</label>
+        <select id="categorySelect" class="input-field" required></select>
+      </div>
+
+      <!-- Date -->
+      <div class="mb-5">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Ngày tháng</label>
+        <input type="date" id="dateInput" class="input-field" required>
+      </div>
+
+      <!-- Note -->
+      <div class="mb-6">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Ghi chú mô tả</label>
+        <textarea id="noteInput" class="input-field" rows="2" placeholder="Mô tả ngắn gọn về giao dịch..."></textarea>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-3">
+        <button type="button" class="btn-secondary flex-1" onclick="closeModal()">Hủy</button>
+        <button type="submit" class="btn-primary flex-1">Lưu giao dịch</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== CONFIRM DELETE MODAL ==================== -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-content p-6 text-center" style="max-width:400px">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background-color:rgba(220,38,38,0.1)">
+      <i data-lucide="alert-triangle" style="width:32px;height:32px;color:var(--danger)"></i>
+    </div>
+    <h3 class="text-xl font-bold mb-2" style="color:var(--text)">Xác nhận xóa</h3>
+    <p class="text-muted mb-6">Bạn có chắc chắn muốn xóa giao dịch này? Hành động không thể hoàn tác.</p>
+    <div class="flex gap-3">
+      <button class="btn-secondary flex-1" onclick="closeConfirmModal()">Hủy</button>
+      <button class="btn-danger flex-1" onclick="confirmDelete()">Xóa</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== CONFIGURATION ====================
+const EXPENSE_CATEGORIES = [
+  { id: 'food', name: 'Ăn uống', icon: 'utensils' },
+  { id: 'transport', name: 'Di chuyển', icon: 'car' },
+  { id: 'shopping', name: 'Mua sắm', icon: 'shopping-bag' },
+  { id: 'bills', name: 'Hoá đơn', icon: 'file-text' },
+  { id: 'entertainment', name: 'Giải trí', icon: 'gamepad-2' },
+  { id: 'health', name: 'Sức khỏe', icon: 'heart' },
+  { id: 'education', name: 'Giáo dục', icon: 'book-open' },
+  { id: 'housing', name: 'Nhà cửa', icon: 'home' },
+  { id: 'gift', name: 'Quà tặng', icon: 'gift' },
+  { id: 'other_expense', name: 'Khác', icon: 'more-horizontal' }
+];
+
+const INCOME_CATEGORIES = [
+  { id: 'salary', name: 'Lương', icon: 'briefcase' },
+  { id: 'bonus', name: 'Thưởng', icon: 'award' },
+  { id: 'investment', name: 'Đầu tư', icon: 'trending-up' },
+  { id: 'sell', name: 'Bán đồ', icon: 'tag' },
+  { id: 'gift_income', name: 'Quà tặng', icon: 'gift' },
+  { id: 'other_income', name: 'Khác', icon: 'more-horizontal' }
+];
+
+const CATEGORY_COLORS = {
+  food: '#ef4444', transport: '#f97316', shopping: '#eab308', bills: '#84cc16',
+  entertainment: '#22c55e', health: '#14b8a6', education: '#06b6d4', housing: '#3b82f6',
+  gift: '#8b5cf6', other_expense: '#6b7280',
+  salary: '#059669', bonus: '#10b981', investment: '#0ea5e9', sell: '#6366f1',
+  gift_income: '#a855f7', other_income: '#64748b'
+};
+
+// ==================== STATE ====================
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let budgets = JSON.parse(localStorage.getItem('budgets')) || {};
+let currentMonth = new Date();
+let currentType = 'expense';
+let deleteId = null;
+let charts = {};
+
+// ==================== UTILITY FUNCTIONS ====================
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('vi-VN').format(Math.round(amount)) + ' đ';
+}
+
+function parseCurrency(str) {
+  return parseInt(str.replace(/[^0-9]/g, '')) || 0;
+}
+
+function formatAmountInput(input) {
+  let value = parseCurrency(input.value);
+  input.value = value > 0 ? new Intl.NumberFormat('vi-VN').format(value) : '';
+}
+
+function getMonthKey(date) {
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+}
+
+function getMonthName(date) {
+  return 'Tháng ' + (date.getMonth() + 1) + ' năm ' + date.getFullYear();
+}
+
+function getTransactionsForMonth(date) {
+  const monthKey = getMonthKey(date);
+  return transactions.filter(t => t.date.startsWith(monthKey));
+}
+
+function getCategoryName(categoryId) {
+  const all = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES];
+  const cat = all.find(c => c.id === categoryId);
+  return cat ? cat.name : categoryId;
+}
+
+function getCategoryIcon(categoryId) {
+  const all = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES];
+  const cat = all.find(c => c.id === categoryId);
+  return cat ? cat.icon : 'circle';
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// ==================== STORAGE ====================
+function saveData() {
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  localStorage.setItem('budgets', JSON.stringify(budgets));
+}
+
+// ==================== TOAST NOTIFICATIONS ====================
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  updateThemeIcons();
+  updateChartsTheme();
+}
+
+function updateThemeIcons() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const icon1 = document.getElementById('themeIcon');
+  const icon2 = document.getElementById('themeIcon2');
+  const label = document.getElementById('themeLabel');
+  
+  if (icon1) icon1.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+  if (icon2) icon2.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+  if (label) label.textContent = isDark ? 'Tắt chế độ tối' : 'Bật chế độ tối';
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+  updateThemeIcons();
+}
+
+// ==================== TABS ====================
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.toggle('active', content.id === 'tab-' + tabName);
+  });
+  
+  if (tabName === 'dashboard') renderDashboard();
+  if (tabName === 'transactions') renderTransactions();
+  if (tabName === 'analysis') renderAnalysis();
+  if (tabName === 'lastmonth') renderLastMonth();
+  if (tabName === 'settings') renderSettings();
+}
+
+// ==================== MONTH NAVIGATION ====================
+function changeMonth(delta) {
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + delta, 1);
+  updateMonthLabels();
+  renderCurrentTab();
+}
+
+function goToCurrentMonth() {
+  currentMonth = new Date();
+  updateMonthLabels();
+  renderCurrentTab();
+}
+
+function updateMonthLabels() {
+  const label = getMonthName(currentMonth);
+  document.getElementById('currentMonthLabel').textContent = label;
+  document.getElementById('transMonthLabel').textContent = label;
+  document.getElementById('analysisMonthLabel').textContent = label;
+}
+
+function renderCurrentTab() {
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab) switchTab(activeTab.dataset.tab);
+}
+
+// ==================== CALCULATIONS ====================
+function calculateMonthlyStats(date) {
+  const monthTrans = getTransactionsForMonth(date);
+  const income = monthTrans.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  const expense = monthTrans.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const balance = income - expense;
+  const savingsRate = income > 0 ? Math.max(0, Math.min(100, (balance / income) * 100)) : 0;
+  
+  return { income, expense, balance, savingsRate, transactions: monthTrans };
+}
+
+function compareWithLastMonth() {
+  const current = calculateMonthlyStats(currentMonth);
+  const lastMonthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+  const last = calculateMonthlyStats(lastMonthDate);
+  
+  const calcChange = (curr, prev) => {
+    if (prev === 0) return curr > 0 ? 100 : 0;
+    return ((curr - prev) / prev) * 100;
+  };
+  
+  return {
+    incomeChange: calcChange(current.income, last.income),
+    expenseChange: calcChange(current.expense, last.expense),
+    balanceChange: calcChange(current.balance, last.balance),
+    current,
+    last
+  };
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const comparison = compareWithLastMonth();
+  const { current, incomeChange, expenseChange, balanceChange } = comparison;
+  
+  document.getElementById('totalIncome').textContent = formatCurrency(current.income);
+  document.getElementById('totalExpense').textContent = formatCurrency(current.expense);
+  document.getElementById('balance').textContent = formatCurrency(current.balance);
+  document.getElementById('balance').style.color = current.balance >= 0 ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('savingsRate').textContent = current.savingsRate.toFixed(1) + '%';
+  document.getElementById('savingsProgress').style.width = current.savingsRate + '%';
+  
+  const formatChange = (change, isGoodWhenDown = false) => {
+    const arrow = change >= 0 ? '↑' : '↓';
+    const isGood = isGoodWhenDown ? change <= 0 : change >= 0;
+    const color = isGood ? 'var(--success)' : 'var(--danger)';
+    return `<span style="color:${color}">${arrow} ${Math.abs(change).toFixed(1)}%</span> so với tháng trước`;
+  };
+  
+  document.getElementById('incomeCompare').innerHTML = formatChange(incomeChange);
+  document.getElementById('expenseCompare').innerHTML = formatChange(expenseChange, true);
+  document.getElementById('balanceCompare').innerHTML = formatChange(balanceChange);
+  
+  renderBudgetWarnings();
+  renderExpensePieChart('expensePieChart', current.transactions);
+  renderDailyBarChart(current.transactions);
+  renderRecentTransactions(current.transactions);
+}
+
+function renderBudgetWarnings() {
+  const container = document.getElementById('budgetWarnings');
+  const monthTrans = getTransactionsForMonth(currentMonth);
+  const expenseByCategory = {};
+  
+  monthTrans.filter(t => t.type === 'expense').forEach(t => {
+    expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + t.amount;
+  });
+  
+  let warnings = [];
+  EXPENSE_CATEGORIES.forEach(cat => {
+    const budget = budgets[cat.id];
+    const spent = expenseByCategory[cat.id] || 0;
+    if (budget && budget > 0 && spent > 0) {
+      const percentage = (spent / budget) * 100;
+      if (percentage >= 80) {
+        warnings.push({
+          category: cat.name,
+          spent,
+          budget,
+          percentage,
+          exceeded: percentage >= 100
+        });
+      }
+    }
+  });
+  
+  if (warnings.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="card p-5">
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color:var(--text)">
+        <i data-lucide="alert-circle" style="width:20px;height:20px;color:var(--warning)"></i>
+        Cảnh báo ngân sách
+      </h3>
+      <div class="space-y-3">
+        ${warnings.map(w => `
+          <div class="p-4 rounded-lg ${w.exceeded ? 'budget-exceeded' : 'budget-warning'}">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium">${w.category}</span>
+              <span class="text-sm font-semibold">${formatCurrency(w.spent)} / ${formatCurrency(w.budget)}</span>
+            </div>
+            <div class="progress-bar" style="background-color:rgba(0,0,0,0.1)">
+              <div class="progress-fill" style="width:${Math.min(w.percentage, 100)}%;background-color:${w.exceeded ? 'var(--danger)' : 'var(--warning)'}"></div>
+            </div>
+            <p class="text-xs mt-2">${w.exceeded ? 'Đã vượt ngân sách!' : 'Sắp đạt ngân sách (' + w.percentage.toFixed(0) + '%)'}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderExpensePieChart(canvasId, trans) {
+  const expenseTrans = trans.filter(t => t.type === 'expense');
+  const categoryTotals = {};
+  expenseTrans.forEach(t => {
+    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+  });
+  
+  const labels = Object.keys(categoryTotals).map(id => getCategoryName(id));
+  const data = Object.values(categoryTotals);
+  const colors = Object.keys(categoryTotals).map(id => CATEGORY_COLORS[id] || '#6b7280');
+  
+  if (charts[canvasId]) charts[canvasId].destroy();
+  
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  
+  const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  
+  charts[canvasId] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: textColor,
+            padding: 15,
+            font: { size: 12 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+              return context.label + ': ' + formatCurrency(context.raw) + ' (' + percentage + '%)';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderDailyBarChart(trans) {
+  const expenseTrans = trans.filter(t => t.type === 'expense');
+  const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+  const dailyData = Array(daysInMonth).fill(0);
+  
+  expenseTrans.forEach(t => {
+    const day = parseInt(t.date.split('-')[2]) - 1;
+    if (day >= 0 && day < daysInMonth) {
+      dailyData[day] += t.amount;
+    }
+  });
+  
+  if (charts.dailyBarChart) charts.dailyBarChart.destroy();
+  
+  const ctx = document.getElementById('dailyBarChart');
+  if (!ctx) return;
+  
+  const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(15,23,42,0.05)';
+  
+  charts.dailyBarChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Array.from({ length: daysInMonth }, (_, i) => i + 1),
+      datasets: [{
+        label: 'Chi tiêu',
+        data: dailyData,
+        backgroundColor: 'rgba(30, 64, 175, 0.7)',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return formatCurrency(context.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: textColor, maxTicksLimit: 15 },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            color: textColor,
+            callback: function(value) {
+              if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+              if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+              return value;
+            }
+          },
+          grid: { color: gridColor }
+        }
+      }
+    }
+  });
+}
+
+function renderRecentTransactions(trans) {
+  const container = document.getElementById('recentTransactions');
+  const sorted = [...trans].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-8 text-muted">
+        <i data-lucide="inbox" style="width:48px;height:48px;margin:0 auto 12px;opacity:0.5"></i>
+        <p>Chưa có giao dịch nào trong tháng này</p>
+      </div>
+    `;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+  
+  container.innerHTML = sorted.map(t => renderTransactionItem(t, false)).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ==================== TRANSACTIONS ====================
+function renderTransactions() {
+  updateCategoryFilter();
+  filterTransactions();
+}
+
+function updateCategoryFilter() {
+  const select = document.getElementById('filterCategory');
+  const allCategories = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES];
+  select.innerHTML = '<option value="all">Tất cả danh mục</option>' +
+    allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function filterTransactions() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const typeFilter = document.getElementById('filterType').value;
+  const categoryFilter = document.getElementById('filterCategory').value;
+  const dateFilter = document.getElementById('filterDate').value;
+  
+  let filtered = getTransactionsForMonth(currentMonth);
+  
+  if (typeFilter !== 'all') filtered = filtered.filter(t => t.type === typeFilter);
+  if (categoryFilter !== 'all') filtered = filtered.filter(t => t.category === categoryFilter);
+  if (dateFilter) filtered = filtered.filter(t => t.date === dateFilter);
+  if (search) filtered = filtered.filter(t => t.note && t.note.toLowerCase().includes(search));
+  
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  renderTransactionList(filtered);
+}
+
+function renderTransactionList(trans) {
+  const container = document.getElementById('transactionList');
+  document.getElementById('transactionCount').textContent = trans.length + ' giao dịch';
+  
+  if (trans.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12 text-muted">
+        <i data-lucide="inbox" style="width:48px;height:48px;margin:0 auto 12px;opacity:0.5"></i>
+        <p>Không tìm thấy giao dịch nào</p>
+        <button class="btn-primary mt-4" onclick="openAddModal()">Thêm giao dịch đầu tiên</button>
+      </div>
+    `;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+  
+  container.innerHTML = trans.map(t => renderTransactionItem(t, true)).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderTransactionItem(t, showActions) {
+  const isExpense = t.type === 'expense';
+  const amountClass = isExpense ? 'amount-expense' : 'amount-income';
+  const amountPrefix = isExpense ? '-' : '+';
+  const icon = getCategoryIcon(t.category);
+  
+  const actions = showActions ? `
+    <div class="flex items-center gap-1">
+      <button onclick="editTransaction('${t.id}')" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" style="color:var(--muted)" title="Sửa">
+        <i data-lucide="pencil" style="width:16px;height:16px"></i>
+      </button>
+      <button onclick="deleteTransaction('${t.id}')" class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" style="color:var(--danger)" title="Xóa">
+        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
+      </button>
+    </div>
+  ` : '';
+  
+  return `
+    <div class="transaction-item ${t.type} flex items-center justify-between p-4 rounded-lg" style="background-color:var(--bg)">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color:${CATEGORY_COLORS[t.category] || '#6b7280'}20">
+          <i data-lucide="${icon}" style="width:20px;height:20px;color:${CATEGORY_COLORS[t.category] || '#6b7280'}"></i>
+        </div>
+        <div>
+          <p class="font-medium" style="color:var(--text)">${getCategoryName(t.category)}</p>
+          <p class="text-xs text-muted">${formatDate(t.date)}${t.note ? ' • ' + escapeHtml(t.note) : ''}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="${amountClass} font-semibold">${amountPrefix}${formatCurrency(t.amount)}</span>
+        ${actions}
+      </div>
+    </div>
+  `;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ==================== ANALYSIS ====================
+function renderAnalysis() {
+  const stats = calculateMonthlyStats(currentMonth);
+  const { income, expense, transactions: trans } = stats;
+  
+  const expenseTrans = trans.filter(t => t.type === 'expense');
+  const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+  const avgDaily = expenseTrans.length > 0 ? expense / daysInMonth : 0;
+  
+  document.getElementById('avgDailyExpense').textContent = formatCurrency(avgDaily);
+  document.getElementById('totalTransactions').textContent = trans.length;
+  
+  const dailyExpense = {};
+  expenseTrans.forEach(t => {
+    dailyExpense[t.date] = (dailyExpense[t.date] || 0) + t.amount;
+  });
+  
+  if (Object.keys(dailyExpense).length > 0) {
+    const maxDay = Object.entries(dailyExpense).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById('maxSpendDay').textContent = formatDate(maxDay[0]);
+    document.getElementById('maxSpendAmount').textContent = formatCurrency(maxDay[1]);
+  } else {
+    document.getElementById('maxSpendDay').textContent = '--';
+    document.getElementById('maxSpendAmount').textContent = '0 đ';
+  }
+  
+  const categoriesUsed = new Set(expenseTrans.map(t => t.category)).size;
+  document.getElementById('categoriesUsed').textContent = categoriesUsed;
+  
+  renderExpensePieChart('analysisExpensePie', trans);
+  renderIncomePieChart(trans);
+  renderTopCategories(expenseTrans);
+  renderSixMonthChart();
+}
+
+function renderIncomePieChart(trans) {
+  const incomeTrans = trans.filter(t => t.type === 'income');
+  const categoryTotals = {};
+  incomeTrans.forEach(t => {
+    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+  });
+  
+  const labels = Object.keys(categoryTotals).map(id => getCategoryName(id));
+  const data = Object.values(categoryTotals);
+  const colors = Object.keys(categoryTotals).map(id => CATEGORY_COLORS[id] || '#6b7280');
+  
+  if (charts.analysisIncomePie) charts.analysisIncomePie.destroy();
+  
+  const ctx = document.getElementById('analysisIncomePie');
+  if (!ctx) return;
+  
+  const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  
+  charts.analysisIncomePie = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels.length > 0 ? labels : ['Chưa có dữ liệu'],
+      datasets: [{
+        data: data.length > 0 ? data : [1],
+        backgroundColor: colors.length > 0 ? colors : ['#cbd5e1'],
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: textColor,
+            padding: 15,
+            font: { size: 12 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              if (labels.length === 0) return 'Chưa có dữ liệu';
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+              return context.label + ': ' + formatCurrency(context.raw) + ' (' + percentage + '%)';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderTopCategories(expenseTrans) {
+  const container = document.getElementById('topCategories');
+  const categoryTotals = {};
+  expenseTrans.forEach(t => {
+    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+  });
+  
+  const sorted = Object.entries(categoryTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  const total = sorted.reduce((sum, item) => sum + item[1], 0);
+  
+  if (sorted.length === 0) {
+    container.innerHTML = '<p class="text-muted text-center py-8">Chưa có dữ liệu chi tiêu</p>';
+    return;
+  }
+  
+  container.innerHTML = sorted.map(([id, amount]) => {
+    const percentage = total > 0 ? (amount / total) * 100 : 0;
+    const color = CATEGORY_COLORS[id] || '#6b7280';
+    return `
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full" style="background-color:${color}"></div>
+            <span class="font-medium text-sm" style="color:var(--text)">${getCategoryName(id)}</span>
+          </div>
+          <span class="text-sm font-semibold" style="color:var(--text)">${formatCurrency(amount)}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${percentage}%;background-color:${color}"></div>
+        </div>
+        <p class="text-xs text-muted mt-1">${percentage.toFixed(1)}% tổng chi tiêu</p>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSixMonthChart() {
+  const labels = [];
+  const incomeData = [];
+  const expenseData = [];
+  
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - i, 1);
+    labels.push('T' + (date.getMonth() + 1));
+    const stats = calculateMonthlyStats(date);
+    incomeData.push(stats.income);
+    expenseData.push(stats.expense);
+  }
+  
+  if (charts.sixMonthChart) charts.sixMonthChart.destroy();
+  
+  const ctx = document.getElementById('sixMonthChart');
+  if (!ctx) return;
+  
+  const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(15,23,42,0.05)';
+  
+  charts.sixMonthChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Thu nhập',
+          data: incomeData,
+          backgroundColor: 'rgba(5, 150, 105, 0.7)',
+          borderRadius: 4
+        },
+        {
+          label: 'Chi tiêu',
+          data: expenseData,
+          backgroundColor: 'rgba(220, 38, 38, 0.7)',
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: textColor }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + formatCurrency(context.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: textColor },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            color: textColor,
+            callback: function(value) {
+              if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+              if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+              return value;
+            }
+          },
+          grid: { color: gridColor }
+        }
+      }
+    }
+  });
+}
+
+function updateChartsTheme() {
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab) switchTab(activeTab.dataset.tab);
+}
+
+// ==================== LAST MONTH ====================
+function renderLastMonth() {
+  const lastMonthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+  const currentMonthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  
+  const lastStats = calculateMonthlyStats(lastMonthDate);
+  const currentStats = calculateMonthlyStats(currentMonthDate);
+  
+  document.getElementById('lastMonthIncome').textContent = formatCurrency(lastStats.income);
+  document.getElementById('lastMonthExpense').textContent = formatCurrency(lastStats.expense);
+  document.getElementById('lastMonthBalance').textContent = formatCurrency(lastStats.balance);
+  
+  renderCategoryComparison(currentStats, lastStats);
+  renderAutoInsights(currentStats, lastStats);
+  renderLargestTransactions(lastStats.transactions);
+}
+
+function renderCategoryComparison(current, last) {
+  const container = document.getElementById('categoryComparison');
+  
+  const getCategoryExpense = (stats, categoryId) => {
+    return stats.transactions
+      .filter(t => t.type === 'expense' && t.category === categoryId)
+      .reduce((sum, t) => sum + t.amount, 0);
+  };
+  
+  const rows = EXPENSE_CATEGORIES.map(cat => {
+    const currAmount = getCategoryExpense(current, cat.id);
+    const lastAmount = getCategoryExpense(last, cat.id);
+    
+    let changeHtml = '<span class="text-muted">--</span>';
+    if (lastAmount > 0) {
+      const change = ((currAmount - lastAmount) / lastAmount) * 100;
+      const arrow = change >= 0 ? '↑' : '↓';
+      const colorClass = change >= 0 ? 'trend-up' : 'trend-down';
+      changeHtml = `<span class="${colorClass} text-sm font-medium">${arrow} ${Math.abs(change).toFixed(1)}%</span>`;
+    } else if (currAmount > 0) {
+      changeHtml = '<span class="trend-up text-sm font-medium">Mới</span>';
+    }
+    
+    return `
+      <div class="comparison-row">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full" style="background-color:${CATEGORY_COLORS[cat.id]}"></div>
+          <span class="text-sm" style="color:var(--text)">${cat.name}</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium" style="color:var(--text)">${formatCurrency(currAmount)}</span>
+          ${changeHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = rows;
+}
+
+function renderAutoInsights(current, last) {
+  const container = document.getElementById('autoInsights');
+  const insights = [];
+  
+  if (last.income > 0) {
+    const change = ((current.income - last.income) / last.income) * 100;
+    if (change > 0) {
+      insights.push({ icon: 'trending-up', color: 'var(--success)', text: `Thu nhập tăng ${change.toFixed(1)}% so với tháng trước (${formatCurrency(current.income - last.income)})` });
+    } else if (change < 0) {
+      insights.push({ icon: 'trending-down', color: 'var(--warning)', text: `Thu nhập giảm ${Math.abs(change).toFixed(1)}% so với tháng trước` });
+    }
+  }
+  
+  if (last.expense > 0) {
+    const change = ((current.expense - last.expense) / last.expense) * 100;
+    if (change > 5) {
+      insights.push({ icon: 'alert-triangle', color: 'var(--danger)', text: `Chi tiêu tăng ${change.toFixed(1)}% so với tháng trước, cần kiểm soát chi tiêu` });
+    } else if (change < -5) {
+      insights.push({ icon: 'thumbs-up', color: 'var(--success)', text: `Chi tiêu giảm ${Math.abs(change).toFixed(1)}% so với tháng trước, rất tốt!` });
+    }
+  }
+  
+  EXPENSE_CATEGORIES.forEach(cat => {
+    const curr = current.transactions.filter(t => t.type === 'expense' && t.category === cat.id).reduce((s, t) => s + t.amount, 0);
+    const prev = last.transactions.filter(t => t.type === 'expense' && t.category === cat.id).reduce((s, t) => s + t.amount, 0);
+    
+    if (prev > 10000 && curr > 10000) {
+      const change = ((curr - prev) / prev) * 100;
+      if (change > 20) {
+        insights.push({ icon: 'arrow-up-right', color: 'var(--danger)', text: `Chi tiêu ${cat.name.toLowerCase()} tăng ${change.toFixed(1)}% (${formatCurrency(curr)} so với ${formatCurrency(prev)})` });
+      } else if (change < -20) {
+        insights.push({ icon: 'arrow-down-right', color: 'var(--success)', text: `Chi tiêu ${cat.name.toLowerCase()} giảm ${Math.abs(change).toFixed(1)}%, tiết kiệm được ${formatCurrency(prev - curr)}` });
+      }
+    }
+  });
+  
+  if (current.savingsRate >= 20) {
+    insights.push({ icon: 'star', color: 'var(--accent)', text: `Tỷ lệ tiết kiệm ${current.savingsRate.toFixed(1)}% - rất tốt, hãy duy trì!` });
+  } else if (current.savingsRate < 10 && current.income > 0) {
+    insights.push({ icon: 'target', color: 'var(--warning)', text: `Tỷ lệ tiết kiệm chỉ ${current.savingsRate.toFixed(1)}% - nên cố gắng đạt ít nhất 20%` });
+  }
+  
+  if (insights.length === 0) {
+    insights.push({ icon: 'info', color: 'var(--accent)', text: 'Tài chính của bạn ổn định so với tháng trước. Hãy tiếp tục duy trì!' });
+  }
+  
+  container.innerHTML = insights.slice(0, 5).map(i => `
+    <div class="insight-card flex items-start gap-3">
+      <i data-lucide="${i.icon}" style="width:20px;height:20px;color:${i.color};flex-shrink:0;margin-top:2px"></i>
+      <p class="text-sm" style="color:var(--text)">${i.text}</p>
+    </div>
+  `).join('');
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderLargestTransactions(trans) {
+  const container = document.getElementById('largestTransactions');
+  const sorted = [...trans]
+    .filter(t => t.type === 'expense')
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+  
+  if (sorted.length === 0) {
+    container.innerHTML = '<p class="text-muted text-center py-8">Không có giao dịch chi tiêu nào</p>';
+    return;
+  }
+  
+  container.innerHTML = sorted.map(t => renderTransactionItem(t, false)).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ==================== SETTINGS ====================
+function renderSettings() {
+  renderBudgetSettings();
+}
+
+function renderBudgetSettings() {
+  const container = document.getElementById('budgetSettings');
+  
+  container.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ${EXPENSE_CATEGORIES.map(cat => `
+        <div class="flex items-center gap-3 p-3 rounded-lg" style="border:1px solid var(--border)">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color:${CATEGORY_COLORS[cat.id]}20">
+            <i data-lucide="${cat.icon}" style="width:18px;height:18px;color:${CATEGORY_COLORS[cat.id]}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-sm truncate" style="color:var(--text)">${cat.name}</p>
+            <input type="text" class="input-field mt-1 text-sm" placeholder="0 đ" 
+              value="${budgets[cat.id] ? new Intl.NumberFormat('vi-VN').format(budgets[cat.id]) : ''}"
+              oninput="formatAmountInput(this)"
+              onchange="setBudget('${cat.id}', this.value)">
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function setBudget(categoryId, value) {
+  const amount = parseCurrency(value);
+  if (amount > 0) {
+    budgets[categoryId] = amount;
+  } else {
+    delete budgets[categoryId];
+  }
+  saveData();
+  showToast('Đã cập nhật ngân sách', 'success');
+}
+
+// ==================== MODAL FUNCTIONS ====================
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = 'Thêm giao dịch mới';
+  document.getElementById('transactionId').value = '';
+  document.getElementById('amountInput').value = '';
+  document.getElementById('noteInput').value = '';
+  document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+  currentType = 'expense';
+  updateTypeButtons();
+  updateCategorySelect();
+  document.getElementById('transactionModal').classList.add('active');
+}
+
+function editTransaction(id) {
+  const t = transactions.find(x => x.id === id);
+  if (!t) return;
+  
+  document.getElementById('modalTitle').textContent = 'Sửa giao dịch';
+  document.getElementById('transactionId').value = t.id;
+  document.getElementById('amountInput').value = new Intl.NumberFormat('vi-VN').format(t.amount);
+  document.getElementById('noteInput').value = t.note || '';
+  document.getElementById('dateInput').value = t.date;
+  currentType = t.type;
+  updateTypeButtons();
+  updateCategorySelect();
+  document.getElementById('categorySelect').value = t.category;
+  document.getElementById('transactionModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('transactionModal').classList.remove('active');
+}
+
+function setType(type) {
+  currentType = type;
+  updateTypeButtons();
+  updateCategorySelect();
+}
+
+function updateTypeButtons() {
+  document.querySelectorAll('.type-btn').forEach(btn => {
+    const isActive = btn.dataset.type === currentType;
+    btn.classList.toggle('active', isActive);
+    if (btn.dataset.type === 'expense') {
+      if (isActive) {
+        btn.style.backgroundColor = 'rgba(220,38,38,0.1)';
+        btn.style.color = 'var(--danger)';
+        btn.style.borderColor = 'var(--danger)';
+      } else {
+        btn.style.backgroundColor = 'transparent';
+        btn.style.color = 'var(--muted)';
+        btn.style.borderColor = 'var(--border)';
+      }
+    } else {
+      if (isActive) {
+        btn.style.backgroundColor = 'rgba(5,150,105,0.1)';
+        btn.style.color = 'var(--success)';
+        btn.style.borderColor = 'var(--success)';
+      } else {
+        btn.style.backgroundColor = 'transparent';
+        btn.style.color = 'var(--muted)';
+        btn.style.borderColor = 'var(--border)';
+      }
+    }
+  });
+}
+
+function updateCategorySelect() {
+  const select = document.getElementById('categorySelect');
+  const categories = currentType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+  select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function saveTransaction(event) {
+  event.preventDefault();
+  
+  const id = document.getElementById('transactionId').value;
+  const amount = parseCurrency(document.getElementById('amountInput').value);
+  const category = document.getElementById('categorySelect').value;
+  const date = document.getElementById('dateInput').value;
+  const note = document.getElementById('noteInput').value.trim();
+  
+  if (amount <= 0) {
+    showToast('Vui lòng nhập số tiền lớn hơn 0', 'error');
+    return;
+  }
+  
+  if (id) {
+    const index = transactions.findIndex(t => t.id === id);
+    if (index !== -1) {
+      transactions[index] = { ...transactions[index], type: currentType, amount, category, date, note };
+      showToast('Đã cập nhật giao dịch', 'success');
+    }
+  } else {
+    transactions.push({
+      id: generateId(),
+      type: currentType,
+      amount,
+      category,
+      date,
+      note,
+      createdAt: new Date().toISOString()
+    });
+    showToast('Đã thêm giao dịch', 'success');
+  }
+  
+  saveData();
+  closeModal();
+  renderCurrentTab();
+}
+
+function deleteTransaction(id) {
+  deleteId = id;
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('active');
+  deleteId = null;
+}
+
+function confirmDelete() {
+  if (deleteId) {
+    transactions = transactions.filter(t => t.id !== deleteId);
+    saveData();
+    showToast('Đã xóa giao dịch', 'success');
+    renderCurrentTab();
+  }
+  closeConfirmModal();
+}
+
+// ==================== EXPORT/IMPORT ====================
+function exportCSV() {
+  if (transactions.length === 0) {
+    showToast('Không có dữ liệu để xuất', 'warning');
+    return;
+  }
+  
+  const headers = ['Ngày', 'Loại', 'Danh mục', 'Số tiền', 'Ghi chú'];
+  const rows = transactions.map(t => [
+    t.date,
+    t.type === 'income' ? 'Thu nhập' : 'Chi tiêu',
+    getCategoryName(t.category),
+    t.amount,
+    (t.note || '').replace(/"/g, '""')
+  ]);
+  
+  const csv = '\uFEFF' + [headers, ...rows]
+    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .join('\n');
+  
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bao-cao-tai-chinh-${getMonthKey(new Date())}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Đã xuất file CSV', 'success');
+}
+
+function exportData() {
+  const data = {
+    transactions,
+    budgets,
+    exportedAt: new Date().toISOString()
+  };
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup-taichinh-${getMonthKey(new Date())}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Đã sao lưu dữ liệu', 'success');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.transactions && Array.isArray(data.transactions)) {
+        transactions = data.transactions;
+        if (data.budgets) budgets = data.budgets;
+        saveData();
+        showToast('Đã khôi phục dữ liệu thành công', 'success');
+        renderCurrentTab();
+      } else {
+        showToast('File không hợp lệ', 'error');
+      }
+    } catch (err) {
+      showToast('Lỗi đọc file', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  if (confirm('Bạn có chắc chắn muốn xóa TẤT CẢ dữ liệu? Hành động này không thể hoàn tác!')) {
+    transactions = [];
+    budgets = {};
+    saveData();
+    showToast('Đã xóa tất cả dữ liệu', 'success');
+    renderCurrentTab();
+  }
+}
+
+// ==================== ONBOARDING ====================
+function showOnboarding() {
+  if (!localStorage.getItem('hasVisited')) {
+    document.getElementById('onboardingOverlay').style.display = 'flex';
+  }
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  localStorage.setItem('hasVisited', 'true');
+}
+
+// ==================== INITIALIZATION ====================
+function init() {
+  loadTheme();
+  updateMonthLabels();
+  renderDashboard();
+  showOnboarding();
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  
+  // Close modal on overlay click
+  document.getElementById('transactionModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirmModal();
+  });
+  
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeConfirmModal();
+    }
+  });
+}
+
+// Wait for DOM to be ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+
+</body>
+</html>
