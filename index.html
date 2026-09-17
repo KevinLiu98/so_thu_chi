@@ -1114,7 +1114,6 @@ const firebaseConfig = {
   apiKey: "AIzaSyAyxth3j8v00kYyaSfHnhX7Bo6yVjvDW6k",
   authDomain: "taichinhcanhan-2a02c.firebaseapp.com",
   projectId: "taichinhcanhan-2a02c",
-  storageBucket: "taichinhcanhan-2a02c.firebasestorage.app",
   messagingSenderId: "718411460999",
   appId: "1:718411460999:web:27820b86e3bcbbde07e322"
 };
@@ -1398,7 +1397,7 @@ function updateUserUI() {
   
   if (currentUser) {
     avatar.textContent = currentUser.email ? currentUser.email[0].toUpperCase() : '?';
-    email.textContent = currentUser.email;
+    email.textContent = currentUser.email || 'Chưa có email';
     modeLabel.textContent = 'Đã đồng bộ đám mây';
     logoutBtn.style.display = 'flex';
     accountStatus.textContent = 'Đã đăng nhập - Đồng bộ đám mây';
