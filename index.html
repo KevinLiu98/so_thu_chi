@@ -3,13 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quản lý tài chính cá nhân</title>
+<title>Quản lý tài chính cá nhân - Đồng bộ đám mây</title>
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.js"></script>
 <!-- Lucide Icons -->
 <script src="https://cdn.jsdelivr.net/npm/lucide@1/dist/umd/lucide.min.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -130,6 +134,12 @@
   .btn-primary:hover {
     opacity: 0.9;
     transform: translateY(-1px);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 
   .btn-secondary {
@@ -287,52 +297,6 @@
     background: linear-gradient(90deg, var(--accent), var(--accent2));
   }
 
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid var(--border);
-    background-color: var(--card);
-    color: var(--muted);
-  }
-
-  .chip:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .chip.active {
-    background-color: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
-
-  .onboarding-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
-    padding: 20px;
-  }
-
-  .onboarding-card {
-    background-color: var(--card);
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 500px;
-    width: 100%;
-    text-align: center;
-    animation: slideUp 0.4s ease;
-  }
-
   .progress-bar {
     height: 8px;
     background-color: var(--border);
@@ -428,6 +392,150 @@
     border-radius: 12px;
     padding: 16px;
   }
+
+  /* Auth Screen */
+  .auth-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--bg), var(--accent-soft));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    padding: 20px;
+  }
+
+  .auth-card {
+    background-color: var(--card);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.4s ease;
+  }
+
+  .auth-tab {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background-color: var(--bg);
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  .auth-tab-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .auth-tab-btn.active {
+    background-color: var(--accent);
+    color: white;
+  }
+
+  .sync-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .sync-indicator.synced {
+    background-color: rgba(5, 150, 105, 0.1);
+    color: var(--success);
+  }
+
+  .sync-indicator.syncing {
+    background-color: rgba(14, 165, 233, 0.1);
+    color: var(--accent2);
+    animation: pulse 1.5s infinite;
+  }
+
+  .sync-indicator.offline {
+    background-color: rgba(217, 119, 6, 0.1);
+    color: var(--warning);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .user-menu {
+    position: relative;
+  }
+
+  .user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 200px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .user-dropdown.active {
+    display: block;
+    animation: slideUp 0.2s ease;
+  }
+
+  .user-dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .user-dropdown-item:hover {
+    background-color: var(--accent-soft);
+  }
+
+  .user-dropdown-divider {
+    height: 1px;
+    background-color: var(--border);
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .firebase-setup-banner {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(217, 119, 6, 0.05));
+    border: 1px solid rgba(217, 119, 6, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
 </style>
 </head>
 <body class="min-h-screen">
@@ -435,38 +543,64 @@
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Onboarding Overlay -->
-<div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
-  <div class="onboarding-card card">
-    <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-accent-soft flex items-center justify-center">
-      <i data-lucide="wallet" style="width:40px;height:40px;color:var(--accent)"></i>
+<!-- ==================== AUTH SCREEN ==================== -->
+<div class="auth-screen" id="authScreen" style="display:none;">
+  <div class="auth-card card">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),var(--accent2))">
+        <i data-lucide="wallet" style="width:32px;height:32px;color:white"></i>
+      </div>
+      <h1 class="text-2xl font-bold" style="color:var(--text)">Quản lý tài chính</h1>
+      <p class="text-sm text-muted mt-2">Đăng nhập để đồng bộ dữ liệu trên mọi thiết bị</p>
     </div>
-    <h2 class="text-2xl font-bold mb-3" style="color:var(--text)">Chào mừng đến với Quản lý tài chính!</h2>
-    <p class="text-muted mb-6">Ứng dụng giúp bạn theo dõi chi tiêu, thu nhập và đưa ra quyết định tài chính thông minh hơn. Dữ liệu của bạn được lưu trữ an toàn trên trình duyệt.</p>
-    <div class="text-left space-y-3 mb-6" style="color:var(--muted)">
-      <div class="flex items-start gap-3">
-        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
-        <span class="text-sm">Ghi lại mọi khoản thu chi một cách nhanh chóng</span>
+
+    <div class="auth-tab">
+      <button class="auth-tab-btn active" data-auth="login" onclick="switchAuthTab('login')">Đăng nhập</button>
+      <button class="auth-tab-btn" data-auth="register" onclick="switchAuthTab('register')">Đăng ký</button>
+    </div>
+
+    <form id="authForm" onsubmit="handleAuth(event)">
+      <div class="mb-4">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Email</label>
+        <input type="email" id="authEmail" class="input-field" placeholder="your@email.com" required>
       </div>
-      <div class="flex items-start gap-3">
-        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
-        <span class="text-sm">Xem biểu đồ phân tích và báo cáo chi tiết</span>
+      <div class="mb-4">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Mật khẩu</label>
+        <input type="password" id="authPassword" class="input-field" placeholder="••••••••" required minlength="6">
       </div>
-      <div class="flex items-start gap-3">
-        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
-        <span class="text-sm">So sánh tài chính giữa các tháng</span>
+      <div class="mb-4" id="confirmPasswordField" style="display:none;">
+        <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Nhập lại mật khẩu</label>
+        <input type="password" id="authConfirmPassword" class="input-field" placeholder="••••••••">
       </div>
+      <button type="submit" class="btn-primary w-full py-3" id="authSubmitBtn">
+        <span id="authBtnText">Đăng nhập</span>
+        <span id="authBtnLoading" style="display:none;"><span class="loading-spinner" style="width:16px;height:16px;border-width:2px;vertical-align:middle;margin-right:8px"></span>Đang xử lý...</span>
+      </button>
+    </form>
+
+    <div class="mt-6 pt-4" style="border-top:1px solid var(--border)">
+      <p class="text-xs text-muted text-center mb-3">Hoặc dùng thử ngay không cần đăng ký</p>
+      <button class="btn-secondary w-full" onclick="useOfflineMode()">
+        <i data-lucide="wifi-off" style="width:16px;height:16px;display:inline;margin-right:6px;vertical-align:middle"></i>
+        Dùng chế độ ngoại tuyến
+      </button>
+    </div>
+
+    <!-- Firebase Setup Banner -->
+    <div class="firebase-setup-banner mt-6" id="firebaseSetupBanner" style="display:none;">
       <div class="flex items-start gap-3">
-        <i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
-        <span class="text-sm">Đặt ngân sách và nhận cảnh báo khi vượt hạn mức</span>
+        <i data-lucide="alert-triangle" style="width:20px;height:20px;color:var(--warning);flex-shrink:0;margin-top:2px"></i>
+        <div class="text-sm">
+          <p class="font-medium mb-1" style="color:var(--warning)">Cần cấu hình Firebase</p>
+          <p class="text-muted" style="color:var(--muted)">Để bật đồng bộ đám mây, anh cần tạo project Firebase và cập nhật cấu hình trong file. Hướng dẫn chi tiết bên dưới.</p>
+        </div>
       </div>
     </div>
-    <button class="btn-primary w-full text-base py-3" onclick="closeOnboarding()">Bắt đầu sử dụng</button>
   </div>
 </div>
 
 <!-- Main Container -->
-<div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8">
+<div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8" id="mainApp">
 
   <!-- Header -->
   <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -476,7 +610,12 @@
       </div>
       <div>
         <h1 class="text-2xl md:text-3xl font-bold" style="color:var(--text)">Quản lý tài chính</h1>
-        <p class="text-sm text-muted">Theo dõi chi tiêu thông minh mỗi ngày</p>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="sync-indicator synced" id="syncIndicator">
+            <i data-lucide="cloud" style="width:14px;height:14px"></i>
+            <span id="syncStatusText">Đã đồng bộ</span>
+          </span>
+        </div>
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -488,6 +627,26 @@
         <i data-lucide="plus" style="width:18px;height:18px"></i>
         <span>Thêm giao dịch</span>
       </button>
+      <div class="user-menu">
+        <button class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white" id="userMenuBtn" onclick="toggleUserMenu()" style="background:linear-gradient(135deg,var(--accent),var(--accent2))">
+          <span id="userAvatar">?</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="px-4 py-3" style="border-bottom:1px solid var(--border)">
+            <p class="font-medium text-sm truncate" id="userEmail" style="color:var(--text)">Chế độ ngoại tuyến</p>
+            <p class="text-xs text-muted mt-1" id="userModeLabel">Dữ liệu chỉ lưu trên thiết bị này</p>
+          </div>
+          <div class="user-dropdown-item" onclick="switchAuthTab('login');showAuthScreen()" style="color:var(--text)">
+            <i data-lucide="log-in" style="width:16px;height:16px;color:var(--accent)"></i>
+            <span>Đăng nhập / Đăng ký</span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <div class="user-dropdown-item" onclick="logout()" id="logoutBtn" style="display:none;color:var(--danger)">
+            <i data-lucide="log-out" style="width:16px;height:16px"></i>
+            <span>Đăng xuất</span>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -518,7 +677,6 @@
   <!-- ==================== DASHBOARD TAB ==================== -->
   <div id="tab-dashboard" class="tab-content active">
     
-    <!-- Month Selector -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div class="month-selector">
         <button class="month-nav-btn" onclick="changeMonth(-1)">
@@ -535,7 +693,6 @@
       </button>
     </div>
 
-    <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <div class="card stat-card p-5">
         <div class="flex items-center justify-between mb-3">
@@ -584,10 +741,8 @@
       </div>
     </div>
 
-    <!-- Budget Warnings -->
     <div id="budgetWarnings" class="mb-6"></div>
 
-    <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="card p-5">
         <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Phân bổ chi tiêu theo danh mục</h3>
@@ -603,7 +758,6 @@
       </div>
     </div>
 
-    <!-- Recent Transactions -->
     <div class="card p-5">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold" style="color:var(--text)">Giao dịch gần đây</h3>
@@ -616,7 +770,6 @@
   <!-- ==================== TRANSACTIONS TAB ==================== -->
   <div id="tab-transactions" class="tab-content">
     
-    <!-- Month Selector -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div class="month-selector">
         <button class="month-nav-btn" onclick="changeMonth(-1)">
@@ -629,7 +782,6 @@
       </div>
     </div>
 
-    <!-- Filters -->
     <div class="card p-4 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
@@ -657,7 +809,6 @@
       </div>
     </div>
 
-    <!-- Transaction List -->
     <div class="card p-5">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold" style="color:var(--text)">Danh sách giao dịch</h3>
@@ -670,7 +821,6 @@
   <!-- ==================== ANALYSIS TAB ==================== -->
   <div id="tab-analysis" class="tab-content">
     
-    <!-- Month Selector -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div class="month-selector">
         <button class="month-nav-btn" onclick="changeMonth(-1)">
@@ -683,7 +833,6 @@
       </div>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <div class="card stat-card p-5">
         <span class="text-sm text-muted">Chi tiêu trung bình/ngày</span>
@@ -704,7 +853,6 @@
       </div>
     </div>
 
-    <!-- Charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="card p-5">
         <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Phân bổ chi tiêu</h3>
@@ -739,7 +887,6 @@
     
     <h2 class="text-xl font-semibold mb-6" style="color:var(--text)">Tháng trước</h2>
 
-    <!-- Summary -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
       <div class="card stat-card p-5">
         <span class="text-sm text-muted">Tổng thu nhập tháng trước</span>
@@ -755,7 +902,6 @@
       </div>
     </div>
 
-    <!-- Comparison -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="card p-5">
         <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">So sánh chi tiêu theo danh mục</h3>
@@ -767,7 +913,6 @@
       </div>
     </div>
 
-    <!-- Largest Transactions -->
     <div class="card p-5">
       <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">Các giao dịch lớn nhất tháng trước</h3>
       <div id="largestTransactions" class="space-y-2"></div>
@@ -778,6 +923,21 @@
   <div id="tab-settings" class="tab-content">
     
     <h2 class="text-xl font-semibold mb-6" style="color:var(--text)">Cài đặt</h2>
+
+    <!-- Account Section -->
+    <div class="card p-5 mb-6">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
+        <i data-lucide="user" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--accent)"></i>
+        Tài khoản & Đồng bộ
+      </h3>
+      <div class="flex items-center justify-between p-4 rounded-lg" style="background-color:var(--bg);border:1px solid var(--border)">
+        <div>
+          <p class="font-medium" style="color:var(--text)" id="accountStatus">Chế độ ngoại tuyến</p>
+          <p class="text-sm text-muted" id="accountDesc">Dữ liệu chỉ lưu trên thiết bị này. Đăng nhập để đồng bộ trên mọi thiết bị.</p>
+        </div>
+        <button class="btn-primary" id="accountActionBtn" onclick="showAuthScreen()">Đăng nhập</button>
+      </div>
+    </div>
 
     <!-- Budget Settings -->
     <div class="card p-5 mb-6">
@@ -838,6 +998,29 @@
       </div>
     </div>
 
+    <!-- Firebase Setup Guide -->
+    <div class="card p-5 mb-6">
+      <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
+        <i data-lucide="cloud" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--accent)"></i>
+        Hướng dẫn bật Đồng bộ đám mây
+      </h3>
+      <div class="space-y-3 text-sm" style="color:var(--muted)">
+        <p>Để bật tính năng đồng bộ giữa điện thoại và máy tính, anh cần tạo một project Firebase miễn phí:</p>
+        <ol class="list-decimal list-inside space-y-2 pl-2">
+          <li>Truy cập <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent)">console.firebase.google.com</a> và đăng nhập bằng tài khoản Google</li>
+          <li>Nhấn "Add project" → đặt tên dự án → nhấn Create</li>
+          <li>Vào phần "Authentication" → Sign-in method → bật "Email/Password"</li>
+          <li>Vào phần "Firestore Database" → Create database → chọn "Start in production mode"</li>
+          <li>Vào trang chủ dự án → nhấn icon "Web" (</>) → đăng ký app → sao chép đoạn mã firebaseConfig</li>
+          <li>Mở file index.html → tìm dòng "const firebaseConfig" → thay bằng cấu hình của anh</li>
+          <li>Upload file lên GitHub lại là xong!</li>
+        </ol>
+        <p class="mt-4 p-3 rounded-lg" style="background-color:var(--bg);border:1px solid var(--border)">
+          <strong style="color:var(--text)">💡 Lưu ý:</strong> Khi chưa cấu hình Firebase, ứng dụng vẫn hoạt động bình thường ở chế độ ngoại tuyến, dữ liệu lưu trên thiết bị.
+        </p>
+      </div>
+    </div>
+
     <!-- About -->
     <div class="card p-5">
       <h3 class="text-lg font-semibold mb-4" style="color:var(--text)">
@@ -846,8 +1029,7 @@
       </h3>
       <div class="space-y-2 text-sm" style="color:var(--muted)">
         <p><strong style="color:var(--text)">Ứng dụng Quản lý tài chính cá nhân</strong></p>
-        <p>Phiên bản 1.0</p>
-        <p>Dữ liệu được lưu trữ cục bộ trên trình duyệt của bạn (localStorage). Không có dữ liệu nào được gửi lên máy chủ.</p>
+        <p>Phiên bản 2.0 - Có đồng bộ đám mây</p>
         <p>Định dạng tiền tệ: VNĐ (Việt Nam Đồng)</p>
       </div>
     </div>
@@ -867,7 +1049,6 @@
     <form id="transactionForm" onsubmit="saveTransaction(event)">
       <input type="hidden" id="transactionId">
       
-      <!-- Type Toggle -->
       <div class="mb-5">
         <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Loại giao dịch</label>
         <div class="flex gap-2">
@@ -882,31 +1063,26 @@
         </div>
       </div>
 
-      <!-- Amount -->
       <div class="mb-5">
         <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Số tiền (VNĐ)</label>
         <input type="text" id="amountInput" class="input-field text-lg font-semibold" placeholder="0" required oninput="formatAmountInput(this)">
       </div>
 
-      <!-- Category -->
       <div class="mb-5">
         <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Danh mục</label>
         <select id="categorySelect" class="input-field" required></select>
       </div>
 
-      <!-- Date -->
       <div class="mb-5">
         <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Ngày tháng</label>
         <input type="date" id="dateInput" class="input-field" required>
       </div>
 
-      <!-- Note -->
       <div class="mb-6">
         <label class="text-sm font-medium mb-2 block" style="color:var(--text)">Ghi chú mô tả</label>
         <textarea id="noteInput" class="input-field" rows="2" placeholder="Mô tả ngắn gọn về giao dịch..."></textarea>
       </div>
 
-      <!-- Buttons -->
       <div class="flex gap-3">
         <button type="button" class="btn-secondary flex-1" onclick="closeModal()">Hủy</button>
         <button type="submit" class="btn-primary flex-1">Lưu giao dịch</button>
@@ -931,6 +1107,18 @@
 </div>
 
 <script>
+// ==================== FIREBASE CONFIGURATION ====================
+// ⚠️ ANH THAY CẤU HÌNH FIREBASE CỦA MÌNH VÀO ĐÂY ⚠️
+// Hướng dẫn chi tiết trong tab "Cài đặt" của ứng dụng
+const firebaseConfig = {
+  apiKey: "AIzaSyC_example_api_key_here",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123def456"
+};
+
 // ==================== CONFIGURATION ====================
 const EXPENSE_CATEGORIES = [
   { id: 'food', name: 'Ăn uống', icon: 'utensils' },
@@ -963,12 +1151,302 @@ const CATEGORY_COLORS = {
 };
 
 // ==================== STATE ====================
-let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-let budgets = JSON.parse(localStorage.getItem('budgets')) || {};
+let transactions = [];
+let budgets = {};
 let currentMonth = new Date();
 let currentType = 'expense';
 let deleteId = null;
 let charts = {};
+let firebaseApp = null;
+let firebaseAuth = null;
+let firestore = null;
+let currentUser = null;
+let isOnlineMode = false;
+let unsubscribeFirestore = null;
+let syncStatus = 'synced';
+
+// ==================== FIREBASE INIT ====================
+function initFirebase() {
+  try {
+    // Check if config is placeholder
+    if (firebaseConfig.apiKey.includes('example') || firebaseConfig.projectId === 'your-project-id') {
+      console.log('Firebase chưa được cấu hình. Chạy ở chế độ ngoại tuyến.');
+      document.getElementById('firebaseSetupBanner').style.display = 'block';
+      return false;
+    }
+    
+    firebaseApp = firebase.initializeApp(firebaseConfig);
+    firebaseAuth = firebase.auth();
+    firestore = firebase.firestore();
+    
+    // Listen for auth state changes
+    firebaseAuth.onAuthStateChanged(function(user) {
+      if (user) {
+        currentUser = user;
+        isOnlineMode = true;
+        setupFirestoreSync();
+        updateUserUI();
+        showToast('Đã đăng nhập thành công!', 'success');
+      } else {
+        currentUser = null;
+        isOnlineMode = false;
+        if (unsubscribeFirestore) {
+          unsubscribeFirestore();
+          unsubscribeFirestore = null;
+        }
+        loadFromLocalStorage();
+        updateUserUI();
+      }
+    });
+    
+    return true;
+  } catch (e) {
+    console.log('Lỗi khởi tạo Firebase:', e);
+    return false;
+  }
+}
+
+function setupFirestoreSync() {
+  if (!currentUser || !firestore) return;
+  
+  updateSyncStatus('syncing');
+  
+  const userDoc = firestore.collection('users').doc(currentUser.uid);
+  
+  // Real-time listener for transactions
+  unsubscribeFirestore = userDoc.collection('data').doc('userData')
+    .onSnapshot(function(doc) {
+      if (doc.exists) {
+        const data = doc.data();
+        transactions = data.transactions || [];
+        budgets = data.budgets || {};
+        saveToLocalStorage(); // Also save locally as backup
+        updateSyncStatus('synced');
+        renderCurrentTab();
+      } else {
+        // First time login - upload local data to cloud
+        uploadLocalDataToCloud();
+      }
+    }, function(error) {
+      console.log('Lỗi đồng bộ:', error);
+      updateSyncStatus('offline');
+      loadFromLocalStorage();
+      renderCurrentTab();
+    });
+}
+
+async function uploadLocalDataToCloud() {
+  if (!currentUser || !firestore) return;
+  
+  try {
+    updateSyncStatus('syncing');
+    await firestore.collection('users').doc(currentUser.uid)
+      .collection('data').doc('userData')
+      .set({
+        transactions: transactions,
+        budgets: budgets,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    updateSyncStatus('synced');
+  } catch (e) {
+    console.log('Lỗi upload:', e);
+    updateSyncStatus('offline');
+    showToast('Không thể đồng bộ, dữ liệu vẫn được lưu cục bộ', 'warning');
+  }
+}
+
+async function syncToCloud() {
+  if (!isOnlineMode || !currentUser || !firestore) {
+    saveToLocalStorage();
+    return;
+  }
+  
+  try {
+    updateSyncStatus('syncing');
+    await firestore.collection('users').doc(currentUser.uid)
+      .collection('data').doc('userData')
+      .set({
+        transactions: transactions,
+        budgets: budgets,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    updateSyncStatus('synced');
+  } catch (e) {
+    console.log('Lỗi đồng bộ:', e);
+    updateSyncStatus('offline');
+    saveToLocalStorage();
+    showToast('Mất kết nối, dữ liệu lưu cục bộ', 'warning');
+  }
+}
+
+function updateSyncStatus(status) {
+  syncStatus = status;
+  const indicator = document.getElementById('syncIndicator');
+  const statusText = document.getElementById('syncStatusText');
+  
+  indicator.className = 'sync-indicator ' + status;
+  
+  if (status === 'synced') {
+    indicator.innerHTML = '<i data-lucide="cloud" style="width:14px;height:14px"></i><span>Đã đồng bộ</span>';
+  } else if (status === 'syncing') {
+    indicator.innerHTML = '<i data-lucide="refresh-cw" style="width:14px;height:14px"></i><span>Đang đồng bộ...</span>';
+  } else {
+    indicator.innerHTML = '<i data-lucide="wifi-off" style="width:14px;height:14px"></i><span>Ngoại tuyến</span>';
+  }
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ==================== AUTH FUNCTIONS ====================
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.auth === tab);
+  });
+  
+  const confirmField = document.getElementById('confirmPasswordField');
+  const btnText = document.getElementById('authBtnText');
+  
+  if (tab === 'register') {
+    confirmField.style.display = 'block';
+    btnText.textContent = 'Đăng ký tài khoản';
+  } else {
+    confirmField.style.display = 'none';
+    btnText.textContent = 'Đăng nhập';
+  }
+}
+
+async function handleAuth(event) {
+  event.preventDefault();
+  
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  const isRegister = document.querySelector('.auth-tab-btn.active').dataset.auth === 'register';
+  
+  if (!firebaseAuth) {
+    showToast('Cần cấu hình Firebase trước. Xem hướng dẫn trong tab Cài đặt.', 'error');
+    return;
+  }
+  
+  document.getElementById('authBtnText').style.display = 'none';
+  document.getElementById('authBtnLoading').style.display = 'inline';
+  document.getElementById('authSubmitBtn').disabled = true;
+  
+  try {
+    if (isRegister) {
+      const confirmPassword = document.getElementById('authConfirmPassword').value;
+      if (password !== confirmPassword) {
+        throw new Error('Mật khẩu xác nhận không khớp');
+      }
+      await firebaseAuth.createUserWithEmailAndPassword(email, password);
+    } else {
+      await firebaseAuth.signInWithEmailAndPassword(email, password);
+    }
+    
+    hideAuthScreen();
+  } catch (e) {
+    let message = e.message;
+    if (e.code === 'auth/user-not-found') message = 'Tài khoản không tồn tại';
+    if (e.code === 'auth/wrong-password') message = 'Sai mật khẩu';
+    if (e.code === 'auth/email-already-in-use') message = 'Email đã được đăng ký';
+    if (e.code === 'auth/weak-password') message = 'Mật khẩu cần ít nhất 6 ký tự';
+    if (e.code === 'auth/invalid-email') message = 'Email không hợp lệ';
+    
+    showToast(message, 'error');
+  } finally {
+    document.getElementById('authBtnText').style.display = 'inline';
+    document.getElementById('authBtnLoading').style.display = 'none';
+    document.getElementById('authSubmitBtn').disabled = false;
+  }
+}
+
+async function logout() {
+  if (firebaseAuth) {
+    await firebaseAuth.signOut();
+  }
+  currentUser = null;
+  isOnlineMode = false;
+  loadFromLocalStorage();
+  updateUserUI();
+  renderCurrentTab();
+  showToast('Đã đăng xuất', 'info');
+}
+
+function showAuthScreen() {
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('userDropdown').classList.remove('active');
+}
+
+function hideAuthScreen() {
+  document.getElementById('authScreen').style.display = 'none';
+}
+
+function useOfflineMode() {
+  hideAuthScreen();
+  loadFromLocalStorage();
+  updateUserUI();
+  renderCurrentTab();
+}
+
+function updateUserUI() {
+  const avatar = document.getElementById('userAvatar');
+  const email = document.getElementById('userEmail');
+  const modeLabel = document.getElementById('userModeLabel');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const accountStatus = document.getElementById('accountStatus');
+  const accountDesc = document.getElementById('accountDesc');
+  const accountActionBtn = document.getElementById('accountActionBtn');
+  
+  if (currentUser) {
+    avatar.textContent = currentUser.email ? currentUser.email[0].toUpperCase() : '?';
+    email.textContent = currentUser.email;
+    modeLabel.textContent = 'Đã đồng bộ đám mây';
+    logoutBtn.style.display = 'flex';
+    accountStatus.textContent = 'Đã đăng nhập - Đồng bộ đám mây';
+    accountDesc.textContent = 'Dữ liệu tự động đồng bộ trên mọi thiết bị của bạn.';
+    accountActionBtn.textContent = 'Đăng xuất';
+    accountActionBtn.onclick = logout;
+    accountActionBtn.className = 'btn-secondary';
+  } else {
+    avatar.textContent = '?';
+    email.textContent = 'Chế độ ngoại tuyến';
+    modeLabel.textContent = 'Dữ liệu chỉ lưu trên thiết bị này';
+    logoutBtn.style.display = 'none';
+    accountStatus.textContent = 'Chế độ ngoại tuyến';
+    accountDesc.textContent = 'Dữ liệu chỉ lưu trên thiết bị này. Đăng nhập để đồng bộ trên mọi thiết bị.';
+    accountActionBtn.textContent = 'Đăng nhập';
+    accountActionBtn.onclick = showAuthScreen;
+    accountActionBtn.className = 'btn-primary';
+  }
+}
+
+function toggleUserMenu() {
+  document.getElementById('userDropdown').classList.toggle('active');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('userMenu');
+  const dropdown = document.getElementById('userDropdown');
+  if (menu && !menu.contains(e.target)) {
+    dropdown.classList.remove('active');
+  }
+});
+
+// ==================== STORAGE ====================
+function saveToLocalStorage() {
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  localStorage.setItem('budgets', JSON.stringify(budgets));
+}
+
+function loadFromLocalStorage() {
+  transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+  budgets = JSON.parse(localStorage.getItem('budgets')) || {};
+}
+
+function saveData() {
+  saveToLocalStorage();
+  syncToCloud();
+}
 
 // ==================== UTILITY FUNCTIONS ====================
 function formatCurrency(amount) {
@@ -1011,12 +1489,6 @@ function getCategoryIcon(categoryId) {
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-// ==================== STORAGE ====================
-function saveData() {
-  localStorage.setItem('transactions', JSON.stringify(transactions));
-  localStorage.setItem('budgets', JSON.stringify(budgets));
 }
 
 // ==================== TOAST NOTIFICATIONS ====================
@@ -2058,24 +2530,21 @@ function clearAllData() {
   }
 }
 
-// ==================== ONBOARDING ====================
-function showOnboarding() {
-  if (!localStorage.getItem('hasVisited')) {
-    document.getElementById('onboardingOverlay').style.display = 'flex';
-  }
-}
-
-function closeOnboarding() {
-  document.getElementById('onboardingOverlay').style.display = 'none';
-  localStorage.setItem('hasVisited', 'true');
-}
-
 // ==================== INITIALIZATION ====================
 function init() {
   loadTheme();
+  loadFromLocalStorage();
   updateMonthLabels();
+  updateUserUI();
+  
+  const firebaseReady = initFirebase();
+  
+  if (!firebaseReady) {
+    // Firebase not configured - show auth screen with banner
+    showAuthScreen();
+  }
+  
   renderDashboard();
-  showOnboarding();
   
   if (typeof lucide !== 'undefined') lucide.createIcons();
   
@@ -2096,7 +2565,6 @@ function init() {
   });
 }
 
-// Wait for DOM to be ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
